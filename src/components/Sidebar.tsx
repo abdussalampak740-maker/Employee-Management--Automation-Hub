@@ -1,8 +1,11 @@
-import { LayoutDashboard, Network, ClipboardList, BarChart3, Settings, Plus, X } from 'lucide-react';
+import { LayoutDashboard, Network, ClipboardList, BarChart3, Settings, Plus, X, Users, TrendingUp, Clock } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 
 const navItems = [
   { icon: LayoutDashboard, label: 'Dashboard', path: '/' },
+  { icon: Users, label: 'Employees', path: '/employees' },
+  { icon: Clock, label: 'Attendance', path: '/attendance' },
+  { icon: TrendingUp, label: 'Performance', path: '/performance' },
   { icon: Network, label: 'Processes', path: '/processes' },
   { icon: ClipboardList, label: 'Tasks', path: '/tasks' },
   { icon: BarChart3, label: 'Analytics', path: '/analytics' },

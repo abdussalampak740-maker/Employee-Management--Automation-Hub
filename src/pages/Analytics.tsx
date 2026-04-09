@@ -1,7 +1,23 @@
-import { Search, Bell, HelpCircle, FileDown, ArrowDown, ArrowUp, Check, Info, Users, X, FileText, Table, Download as DownloadIcon } from 'lucide-react';
+import { Search, Bell, HelpCircle, FileDown, ArrowDown, ArrowUp, Check, Info, Users, X, FileText, Table, Download as DownloadIcon, Sparkles, TrendingUp, Zap, AlertTriangle } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useState, useEffect } from 'react';
 import { useToast } from '../components/Toast';
+import { 
+  LineChart, 
+  Line, 
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip, 
+  ResponsiveContainer, 
+  AreaChart, 
+  Area,
+  BarChart,
+  Bar,
+  Cell,
+  PieChart,
+  Pie
+} from 'recharts';
 
 const kpis = [
   { label: 'Average Cycle Time', value: '4m 12s', change: '14%', trend: 'down', trendColor: 'text-tertiary', bgColor: 'bg-tertiary-fixed/30' },
@@ -10,32 +26,53 @@ const kpis = [
   { label: 'Success Rate', value: '99.98%', change: 'Stable', trend: 'stable', trendColor: 'text-tertiary', bgColor: 'bg-tertiary-fixed/30' }
 ];
 
-const topProcesses = [
-  { name: 'Invoice Validation', value: 98 },
-  { name: 'User Provisioning', value: 84 },
-  { name: 'Compliance Audit', value: 72 },
-  { name: 'Asset Recovery', value: 61 }
+const efficiencyData = [
+  { day: 'Mon', actual: 65, target: 70 },
+  { day: 'Tue', actual: 72, target: 70 },
+  { day: 'Wed', actual: 85, target: 75 },
+  { day: 'Thu', actual: 78, target: 75 },
+  { day: 'Fri', actual: 90, target: 80 },
+  { day: 'Sat', actual: 82, target: 80 },
+  { day: 'Sun', actual: 88, target: 80 },
 ];
 
-const teamWorkload = [
-  { name: 'Sarah Jenkins', role: 'Senior Analyst', tasks: 7, capacity: 12, status: 'Healthy', statusColor: 'text-tertiary' },
-  { name: 'Marcus Thorne', role: 'Process Specialist', tasks: 9, capacity: 10, status: 'At Capacity', statusColor: 'text-error' },
-  { name: 'Elena Rodriguez', role: 'Workflow Lead', tasks: 3, capacity: 15, status: 'Available', statusColor: 'text-tertiary' }
+const departmentData = [
+  { name: 'Operations', value: 45, color: '#00346f' },
+  { name: 'Finance', value: 25, color: '#0061a4' },
+  { name: 'Legal', value: 15, color: '#00a3ff' },
+  { name: 'IT', value: 15, color: '#00d1ff' },
+];
+
+const aiInsights = [
+  { 
+    title: 'Efficiency Peak Detected', 
+    desc: 'Automation efficiency reached a 30-day high on Friday, correlated with the new Payroll workflow deployment.',
+    type: 'positive',
+    icon: Zap
+  },
+  { 
+    title: 'Resource Bottleneck', 
+    desc: 'IT Infrastructure team is consistently at 95% capacity. Consider redistributing non-critical tasks.',
+    type: 'warning',
+    icon: AlertTriangle
+  },
+  { 
+    title: 'Success Rate Stability', 
+    desc: 'Error rates have dropped by 0.02% since the last system update. Validation protocols are performing optimally.',
+    type: 'positive',
+    icon: Check
+  }
 ];
 
 export default function Analytics() {
   const { showToast } = useToast();
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
   const [timeRange, setTimeRange] = useState<'7d' | '30d' | 'custom'>('30d');
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const handleEsc = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        setIsExportModalOpen(false);
-      }
-    };
-    window.addEventListener('keydown', handleEsc);
-    return () => window.removeEventListener('keydown', handleEsc);
+    const timer = setTimeout(() => setLoading(false), 800);
+    return () => clearTimeout(timer);
   }, []);
 
   const handleExport = () => {
@@ -46,78 +83,255 @@ export default function Analytics() {
     }, 2000);
   };
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-[80vh]">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
   return (
-    <div className="max-w-[1400px] mx-auto p-10">
+    <div className="max-w-[1400px] mx-auto p-6 lg:p-10 space-y-10">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
-          <h1 className="text-4xl font-extrabold font-headline tracking-tight text-on-surface mb-2">Performance Analytics & Reports</h1>
-          <p className="text-on-surface-variant max-w-2xl text-lg leading-relaxed">System-wide operational overview and efficiency metrics for current automation workflows.</p>
+          <h1 className="text-3xl lg:text-4xl font-extrabold font-headline tracking-tight text-on-surface mb-2">Advanced Analytics</h1>
+          <p className="text-on-surface-variant max-w-2xl text-base lg:text-lg leading-relaxed">Deep dive into operational efficiency, team performance, and AI-driven insights.</p>
         </div>
         <div className="flex items-center gap-3">
           <div className="bg-surface-container flex p-1 rounded-xl">
-            <button 
-              onClick={() => {
-                setTimeRange('7d');
-                showToast('View updated to Last 7 Days', 'info');
-              }}
-              className={`px-4 py-2 text-sm font-medium transition-all rounded-lg ${
-                timeRange === '7d' ? 'bg-surface-container-lowest text-primary shadow-sm' : 'text-on-surface-variant hover:text-on-surface'
-              }`}
-            >
-              Last 7 Days
-            </button>
-            <button 
-              onClick={() => {
-                setTimeRange('30d');
-                showToast('View updated to Last 30 Days', 'info');
-              }}
-              className={`px-4 py-2 text-sm font-medium transition-all rounded-lg ${
-                timeRange === '30d' ? 'bg-surface-container-lowest text-primary shadow-sm' : 'text-on-surface-variant hover:text-on-surface'
-              }`}
-            >
-              Last 30 Days
-            </button>
-            <button 
-              onClick={() => {
-                setTimeRange('custom');
-                showToast('Custom date range selected', 'info');
-              }}
-              className={`px-4 py-2 text-sm font-medium transition-all rounded-lg ${
-                timeRange === 'custom' ? 'bg-surface-container-lowest text-primary shadow-sm' : 'text-on-surface-variant hover:text-on-surface'
-              }`}
-            >
-              Custom
-            </button>
+            {(['7d', '30d', 'custom'] as const).map((range) => (
+              <button 
+                key={range}
+                onClick={() => {
+                  setTimeRange(range);
+                  showToast(`View updated to ${range === 'custom' ? 'Custom Range' : `Last ${range}`}`, 'info');
+                }}
+                className={`px-4 py-2 text-sm font-medium transition-all rounded-lg ${
+                  timeRange === range ? 'bg-surface-container-lowest text-primary shadow-sm' : 'text-on-surface-variant hover:text-on-surface'
+                }`}
+              >
+                {range === '7d' ? '7 Days' : range === '30d' ? '30 Days' : 'Custom'}
+              </button>
+            ))}
           </div>
           <button 
             onClick={() => setIsExportModalOpen(true)}
-            className="bg-surface-container-high hover:bg-surface-container-highest text-on-surface-variant p-2 rounded-xl transition-colors"
+            className="bg-primary text-on-primary px-4 py-2 rounded-xl flex items-center gap-2 font-bold text-sm hover:opacity-90 transition-opacity shadow-lg shadow-primary/20"
           >
-            <FileDown size={20} />
+            <FileDown size={18} />
+            Export
           </button>
         </div>
       </div>
 
       {/* KPI Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {kpis.map((kpi, i) => (
-          <div key={kpi.label} className={`bg-surface-container-lowest p-6 rounded-xl border-l-4 ${i === 0 ? 'border-primary' : 'border-transparent'} shadow-sm`}>
-            <p className="text-sm font-medium text-on-surface-variant mb-1">{kpi.label}</p>
+          <motion.div 
+            key={kpi.label} 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: i * 0.1 }}
+            className="bg-surface-container-lowest p-6 rounded-2xl border border-outline shadow-sm hover:shadow-md transition-shadow"
+          >
+            <p className="text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-2">{kpi.label}</p>
             <div className="flex items-end justify-between">
-              <h3 className="text-3xl font-bold font-headline text-on-surface">{kpi.value}</h3>
-              <span className={`${kpi.trendColor} font-bold text-xs flex items-center ${kpi.bgColor} px-2 py-1 rounded-full`}>
+              <h3 className="text-3xl font-black font-headline text-on-surface">{kpi.value}</h3>
+              <span className={`${kpi.trendColor} font-bold text-[10px] flex items-center ${kpi.bgColor} px-2.5 py-1 rounded-full border border-current/10`}>
                 {kpi.trend === 'down' && <ArrowDown size={12} className="mr-1" />}
                 {kpi.trend === 'up' && <ArrowUp size={12} className="mr-1" />}
                 {kpi.trend === 'stable' && <Check size={12} className="mr-1" />}
                 {kpi.change}
               </span>
             </div>
-          </div>
+          </motion.div>
         ))}
       </div>
 
-      {/* Export Modal */}
+      {/* Main Charts Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Efficiency Chart */}
+        <div className="lg:col-span-2 bg-surface-container-lowest p-6 lg:p-8 rounded-2xl border border-outline shadow-sm">
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <h4 className="text-lg font-bold font-headline text-on-surface">Efficiency Trends</h4>
+              <p className="text-xs text-on-surface-variant">System processing speeds vs operational targets</p>
+            </div>
+            <div className="flex gap-4">
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-primary"></div>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant">Actual</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-tertiary"></div>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant">Target</span>
+              </div>
+            </div>
+          </div>
+          
+          <div className="h-[300px] w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={efficiencyData}>
+                <defs>
+                  <linearGradient id="colorActual" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#00346f" stopOpacity={0.1}/>
+                    <stop offset="95%" stopColor="#00346f" stopOpacity={0}/>
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                <XAxis 
+                  dataKey="day" 
+                  axisLine={false} 
+                  tickLine={false} 
+                  tick={{ fontSize: 10, fontWeight: 700, fill: '#64748b' }} 
+                  dy={10}
+                />
+                <YAxis 
+                  axisLine={false} 
+                  tickLine={false} 
+                  tick={{ fontSize: 10, fontWeight: 700, fill: '#64748b' }} 
+                />
+                <Tooltip 
+                  contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
+                />
+                <Area 
+                  type="monotone" 
+                  dataKey="actual" 
+                  stroke="#00346f" 
+                  strokeWidth={3}
+                  fillOpacity={1} 
+                  fill="url(#colorActual)" 
+                />
+                <Line 
+                  type="monotone" 
+                  dataKey="target" 
+                  stroke="#00a3ff" 
+                  strokeWidth={2} 
+                  strokeDasharray="5 5" 
+                  dot={false}
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* AI Insights Panel */}
+        <div className="bg-primary-gradient p-1 rounded-2xl shadow-xl shadow-primary/20">
+          <div className="bg-surface-container-lowest h-full rounded-[calc(1rem-4px)] p-6 lg:p-8">
+            <div className="flex items-center gap-2 mb-8">
+              <Sparkles className="text-primary w-5 h-5" />
+              <h4 className="text-lg font-bold font-headline text-on-surface">AI Insights</h4>
+            </div>
+            <div className="space-y-6">
+              {aiInsights.map((insight, i) => (
+                <motion.div 
+                  key={i}
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: i * 0.2 }}
+                  className="flex gap-4"
+                >
+                  <div className={`shrink-0 w-10 h-10 rounded-xl flex items-center justify-center ${
+                    insight.type === 'positive' ? 'bg-tertiary/10 text-tertiary' : 'bg-error/10 text-error'
+                  }`}>
+                    <insight.icon size={20} />
+                  </div>
+                  <div>
+                    <h5 className="text-sm font-bold text-on-surface mb-1">{insight.title}</h5>
+                    <p className="text-xs text-on-surface-variant leading-relaxed">{insight.desc}</p>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+            <button className="w-full mt-10 py-3 bg-primary/5 hover:bg-primary/10 text-primary rounded-xl text-xs font-bold transition-all border border-primary/20">
+              Generate Detailed AI Audit
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Secondary Charts Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Departmental Breakdown */}
+        <div className="bg-surface-container-lowest p-6 lg:p-8 rounded-2xl border border-outline shadow-sm">
+          <h4 className="text-lg font-bold font-headline text-on-surface mb-8">Departmental Automation Load</h4>
+          <div className="flex flex-col md:flex-row items-center gap-8">
+            <div className="w-full md:w-1/2 h-[200px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={departmentData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={60}
+                    outerRadius={80}
+                    paddingAngle={5}
+                    dataKey="value"
+                  >
+                    {departmentData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="w-full md:w-1/2 space-y-4">
+              {departmentData.map((dept) => (
+                <div key={dept.name} className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-3 h-3 rounded-full" style={{ backgroundColor: dept.color }}></div>
+                    <span className="text-sm font-medium text-on-surface">{dept.name}</span>
+                  </div>
+                  <span className="text-sm font-bold text-on-surface-variant">{dept.value}%</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Success Rates Bar Chart */}
+        <div className="bg-surface-container-lowest p-6 lg:p-8 rounded-2xl border border-outline shadow-sm">
+          <h4 className="text-lg font-bold font-headline text-on-surface mb-8">Process Success Rates</h4>
+          <div className="h-[200px] w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={[
+                { name: 'Invoice', rate: 98 },
+                { name: 'Provision', rate: 84 },
+                { name: 'Audit', rate: 72 },
+                { name: 'Recovery', rate: 61 },
+                { name: 'Payroll', rate: 95 },
+              ]}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                <XAxis 
+                  dataKey="name" 
+                  axisLine={false} 
+                  tickLine={false} 
+                  tick={{ fontSize: 10, fontWeight: 700, fill: '#64748b' }} 
+                />
+                <YAxis hide />
+                <Tooltip 
+                  cursor={{ fill: 'transparent' }}
+                  contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
+                />
+                <Bar dataKey="rate" radius={[4, 4, 0, 0]}>
+                  {[98, 84, 72, 61, 95].map((rate, index) => (
+                    <Cell key={`cell-${index}`} fill={rate > 90 ? '#00346f' : rate > 70 ? '#0061a4' : '#00a3ff'} />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+          <div className="mt-6 flex justify-between text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">
+            <span>Critical Threshold: 75%</span>
+            <span className="text-error">2 Processes Below Target</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Export Modal (Keep existing) */}
       <AnimatePresence>
         {isExportModalOpen && (
           <div 
@@ -186,26 +400,6 @@ export default function Analytics() {
                     ))}
                   </div>
                 </div>
-
-                <div>
-                  <label className="block text-sm font-bold text-on-surface mb-4">Destination</label>
-                  <div className="flex flex-col gap-2">
-                    <label className="flex items-center gap-3 cursor-pointer p-3 rounded-lg hover:bg-surface-container transition-colors">
-                      <input type="radio" name="dest" defaultChecked className="w-4 h-4 text-primary focus:ring-primary/20 border-outline-variant" />
-                      <div className="flex flex-col">
-                        <span className="text-sm font-semibold">Download to Device</span>
-                        <span className="text-[10px] text-on-surface-variant">Save report directly to your downloads folder</span>
-                      </div>
-                    </label>
-                    <label className="flex items-center gap-3 cursor-pointer p-3 rounded-lg hover:bg-surface-container transition-colors">
-                      <input type="radio" name="dest" className="w-4 h-4 text-primary focus:ring-primary/20 border-outline-variant" />
-                      <div className="flex flex-col">
-                        <span className="text-sm font-semibold">Email to Manager</span>
-                        <span className="text-[10px] text-on-surface-variant">Send encrypted file to alex.mercer@enterprise.com</span>
-                      </div>
-                    </label>
-                  </div>
-                </div>
               </div>
 
               <div className="px-8 py-6 bg-surface-container-low flex justify-end gap-4">
@@ -221,136 +415,6 @@ export default function Analytics() {
           </div>
         )}
       </AnimatePresence>
-
-      {/* KPI Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-12">
-        {kpis.map((kpi, i) => (
-          <div key={kpi.label} className={`bg-surface-container-lowest p-5 sm:p-6 rounded-xl border-l-4 ${i === 0 ? 'border-primary' : 'border-transparent'} shadow-sm`}>
-            <p className="text-xs sm:text-sm font-medium text-on-surface-variant mb-1">{kpi.label}</p>
-            <div className="flex items-end justify-between">
-              <h3 className="text-2xl sm:text-3xl font-bold font-headline text-on-surface">{kpi.value}</h3>
-              <span className={`${kpi.trendColor} font-bold text-[10px] sm:text-xs flex items-center ${kpi.bgColor} px-2 py-1 rounded-full`}>
-                {kpi.trend === 'down' && <ArrowDown size={12} className="mr-1" />}
-                {kpi.trend === 'up' && <ArrowUp size={12} className="mr-1" />}
-                {kpi.trend === 'stable' && <Check size={12} className="mr-1" />}
-                {kpi.change}
-              </span>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Charts Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 mb-12">
-        <div className="col-span-1 lg:col-span-8 bg-surface-container-lowest p-5 sm:p-8 rounded-xl shadow-sm">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-4">
-            <div>
-              <h4 className="text-lg font-bold font-headline text-on-surface">Efficiency Trends</h4>
-              <p className="text-xs text-on-surface-variant">System processing speeds vs operational targets</p>
-            </div>
-            <div className="flex gap-4">
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-primary"></div>
-                <span className="text-xs font-medium">Actual</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-outline-variant"></div>
-                <span className="text-xs font-medium">Target</span>
-              </div>
-            </div>
-          </div>
-          
-          {/* Chart Mockup */}
-          <div className="relative h-[200px] sm:h-[300px] w-full flex items-end justify-between px-2">
-            <div className="absolute inset-0 flex flex-col justify-between py-2 border-b border-surface-container">
-              {[1, 2, 3, 4].map(i => <div key={i} className="w-full border-t border-surface-container-low"></div>)}
-            </div>
-            <svg className="absolute bottom-0 left-0 w-full h-[150px] sm:h-[200px]" preserveAspectRatio="none" viewBox="0 0 100 100">
-              <defs>
-                <linearGradient id="chartGradient" x1="0%" x2="0%" y1="0%" y2="100%">
-                  <stop offset="0%" style={{ stopColor: 'rgba(0, 52, 111, 0.2)', stopOpacity: 1 }} />
-                  <stop offset="100%" style={{ stopColor: 'rgba(0, 52, 111, 0)', stopOpacity: 0 }} />
-                </linearGradient>
-              </defs>
-              <path d="M0,80 Q10,70 20,75 T40,60 T60,65 T80,45 T100,50 L100,100 L0,100 Z" fill="url(#chartGradient)" />
-              <path d="M0,80 Q10,70 20,75 T40,60 T60,65 T80,45 T100,50" fill="none" stroke="#00346f" strokeWidth="2" vectorEffect="non-scaling-stroke" />
-            </svg>
-            <div className="absolute bottom-[-24px] left-0 w-full flex justify-between px-2">
-              <span className="text-[9px] sm:text-[10px] text-on-surface-variant">Day 1</span>
-              <span className="text-[9px] sm:text-[10px] text-on-surface-variant">Day 10</span>
-              <span className="text-[9px] sm:text-[10px] text-on-surface-variant">Day 20</span>
-              <span className="text-[9px] sm:text-[10px] text-on-surface-variant">Today</span>
-            </div>
-          </div>
-        </div>
-
-        <div className="col-span-1 lg:col-span-4 bg-surface-container-lowest p-5 sm:p-8 rounded-xl shadow-sm">
-          <h4 className="text-lg font-bold font-headline text-on-surface mb-6">Top Performing Processes</h4>
-          <div className="space-y-6">
-            {topProcesses.map(proc => (
-              <div key={proc.name}>
-                <div className="flex justify-between text-xs mb-2">
-                  <span className="font-semibold">{proc.name}</span>
-                  <span className="text-on-surface-variant">{proc.value}%</span>
-                </div>
-                <div className="h-2 bg-surface-container rounded-full overflow-hidden">
-                  <div className="h-full bg-primary rounded-full" style={{ width: `${proc.value}%` }}></div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Team Workload */}
-      <div className="bg-surface-container-lowest rounded-xl overflow-hidden shadow-sm border border-outline-variant/10">
-        <div className="px-8 py-6 border-b border-surface-container-low flex items-center justify-between">
-          <div>
-            <h4 className="text-lg font-bold font-headline text-on-surface">Team Workload Distribution</h4>
-            <p className="text-xs text-on-surface-variant">Real-time task allocation and bandwidth</p>
-          </div>
-          <button 
-            onClick={() => {
-              showToast('Analyzing workload distribution...', 'info');
-              setTimeout(() => showToast('Workload rebalanced across team members', 'success'), 2000);
-            }}
-            className="text-primary text-sm font-semibold hover:underline"
-          >
-            Rebalance Workload
-          </button>
-        </div>
-        <div className="divide-y divide-surface-container-low">
-          {teamWorkload.map((staff, i) => (
-            <div key={i} className="px-8 py-5 flex items-center justify-between hover:bg-surface-container-low transition-colors group">
-              <div className="flex items-center gap-4">
-                <img src={`https://picsum.photos/seed/staff${i}/40/40`} alt={staff.name} className="w-10 h-10 rounded-full object-cover" referrerPolicy="no-referrer" />
-                <div>
-                  <p className="text-sm font-bold text-on-surface">{staff.name}</p>
-                  <p className="text-xs text-on-surface-variant">{staff.role}</p>
-                </div>
-              </div>
-              <div className="flex-1 max-w-md mx-12">
-                <div className="flex justify-between text-[10px] mb-1 uppercase tracking-wider text-on-surface-variant">
-                  <span>Tasks</span>
-                  <span>Capacity ({staff.capacity})</span>
-                </div>
-                <div className="flex gap-1 h-1.5">
-                  {Array.from({ length: staff.capacity }).map((_, idx) => (
-                    <div 
-                      key={idx} 
-                      className={`flex-1 rounded-full ${idx < staff.tasks ? (staff.status === 'At Capacity' ? 'bg-error' : 'bg-primary') : 'bg-surface-container'}`}
-                    ></div>
-                  ))}
-                </div>
-              </div>
-              <div className="text-right">
-                <span className="text-sm font-bold">{staff.tasks} / {staff.capacity}</span>
-                <p className={`text-[10px] font-bold ${staff.statusColor}`}>{staff.status}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
     </div>
   );
 }

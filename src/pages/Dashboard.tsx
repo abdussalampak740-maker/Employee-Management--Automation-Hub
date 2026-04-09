@@ -30,10 +30,19 @@ const iconMap: Record<string, any> = {
   Zap
 };
 
+interface Employee {
+  id: string;
+  name: string;
+  role: string;
+  avatar: string;
+  status: string;
+}
+
 export default function Dashboard() {
   const { showToast } = useToast();
   const [metrics, setMetrics] = useState<Metric[]>([]);
   const [activities, setActivities] = useState<ActivityItem[]>([]);
+  const [employees, setEmployees] = useState<Employee[]>([]);
   const [loading, setLoading] = useState(true);
   const [timeRange, setTimeRange] = useState<'daily' | 'weekly'>('weekly');
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
@@ -72,16 +81,19 @@ export default function Dashboard() {
   useEffect(() => {
     const loadDashboardData = async () => {
       try {
-        const [metricsRes, activitiesRes] = await Promise.all([
+        const [metricsRes, activitiesRes, employeesRes] = await Promise.all([
           fetch('/api/dashboard/metrics'),
-          fetch('/api/dashboard/activities')
+          fetch('/api/dashboard/activities'),
+          fetch('/api/employees')
         ]);
         
         const metricsData = await metricsRes.json();
         const activitiesData = await activitiesRes.json();
+        const employeesData = await employeesRes.json();
 
         setMetrics(metricsData.map((m: any) => ({ ...m, icon: iconMap[m.icon] || LayoutDashboard })));
         setActivities(activitiesData.map((a: any) => ({ ...a, icon: iconMap[a.icon] || Activity })));
+        setEmployees(employeesData.slice(0, 5));
       } catch (error) {
         console.error("Failed to fetch dashboard data:", error);
       } finally {
@@ -220,6 +232,29 @@ export default function Dashboard() {
               >
                 View Details
               </button>
+            </div>
+          </div>
+
+          {/* Team Overview */}
+          <div className="bg-surface-container-lowest p-6 rounded-xl border border-outline-variant/10">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h3 className="text-lg font-bold text-on-surface">Team Overview</h3>
+                <p className="text-on-surface-variant text-sm">Active members and their status</p>
+              </div>
+              <button className="text-primary text-xs font-bold hover:underline">View All</button>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {employees.map((emp) => (
+                <div key={emp.id} className="flex items-center gap-3 p-3 rounded-xl bg-surface-container-low border border-outline-variant/5 hover:border-primary/20 transition-all">
+                  <img src={emp.avatar} alt={emp.name} className="w-10 h-10 rounded-full object-cover" referrerPolicy="no-referrer" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-bold text-on-surface truncate">{emp.name}</p>
+                    <p className="text-[10px] text-on-surface-variant truncate">{emp.role}</p>
+                  </div>
+                  <div className={`w-2 h-2 rounded-full ${emp.status === 'Active' ? 'bg-tertiary' : 'bg-error'}`} title={emp.status}></div>
+                </div>
+              ))}
             </div>
           </div>
         </div>

@@ -12,6 +12,9 @@ import Tasks from './pages/Tasks';
 import TaskDetail from './pages/TaskDetail';
 import Analytics from './pages/Analytics';
 import Settings from './pages/Settings';
+import Employees from './pages/Employees';
+import Performance from './pages/Performance';
+import Attendance from './pages/Attendance';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import { ToastProvider } from './components/Toast';
@@ -46,6 +49,9 @@ export default function App() {
               </ProtectedRoute>
             }>
               <Route index element={<Dashboard />} />
+              <Route path="employees" element={<Employees />} />
+              <Route path="attendance" element={<Attendance />} />
+              <Route path="performance" element={<Performance />} />
               <Route path="processes" element={<Processes />} />
               <Route path="tasks" element={<Tasks />} />
               <Route path="tasks/:id" element={<TaskDetail />} />
