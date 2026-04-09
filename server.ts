@@ -20,27 +20,44 @@ async function startServer() {
 
   // API Routes
   app.post("/api/auth/login", (req, res) => {
-    const { email, password } = req.body;
-    const user = users.find(u => u.email === email && u.password === password);
-    
-    if (user) {
-      // In a real app, we'd return a JWT here
-      const { password: _, ...userWithoutPassword } = user;
-      res.json({ user: userWithoutPassword, token: 'mock-jwt-token' });
-    } else {
-      res.status(401).json({ error: "Invalid email or password" });
+    try {
+      const { email, password } = req.body || {};
+      if (!email || !password) {
+        return res.status(400).json({ error: "Email and password are required" });
+      }
+
+      const user = users.find(u => u.email === email && u.password === password);
+      
+      if (user) {
+        const { password: _, ...userWithoutPassword } = user;
+        res.json({ user: userWithoutPassword, token: 'mock-jwt-token' });
+      } else {
+        res.status(401).json({ error: "Invalid email or password" });
+      }
+    } catch (error) {
+      console.error('Login API error:', error);
+      res.status(500).json({ error: "Internal server error" });
     }
   });
 
   app.post("/api/auth/signup", (req, res) => {
-    const { email, password, name, role } = req.body;
-    if (users.find(u => u.email === email)) {
-      return res.status(400).json({ error: "User already exists" });
+    try {
+      const { email, password, name, role } = req.body || {};
+      if (!email || !password || !name) {
+        return res.status(400).json({ error: "Email, password, and name are required" });
+      }
+
+      if (users.find(u => u.email === email)) {
+        return res.status(400).json({ error: "User already exists" });
+      }
+      const newUser = { id: String(users.length + 1), email, password, name, role: role || 'employee' };
+      users.push(newUser);
+      const { password: _, ...userWithoutPassword } = newUser;
+      res.json({ user: userWithoutPassword, token: 'mock-jwt-token' });
+    } catch (error) {
+      console.error('Signup API error:', error);
+      res.status(500).json({ error: "Internal server error" });
     }
-    const newUser = { id: String(users.length + 1), email, password, name, role: role || 'employee' };
-    users.push(newUser);
-    const { password: _, ...userWithoutPassword } = newUser;
-    res.json({ user: userWithoutPassword, token: 'mock-jwt-token' });
   });
 
   app.get("/api/health", (req, res) => {

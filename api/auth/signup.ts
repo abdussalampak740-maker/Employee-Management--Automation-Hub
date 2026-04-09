@@ -1,11 +1,15 @@
 // api/auth/signup.ts
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { users } from '../_lib/db';
+import { users } from '../_lib/db.js';
 
 export default function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  const { email, password, name, role } = req.body;
+  const { email, password, name, role } = req.body || {};
+  if (!email || !password || !name) {
+    return res.status(400).json({ error: "Email, password, and name are required" });
+  }
+
   if (users.find(u => u.email === email)) {
     return res.status(400).json({ error: "User already exists" });
   }
